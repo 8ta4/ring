@@ -116,7 +116,7 @@ Each request in a batch evaluates two items:
 
 - The benchmark item, which sets the baseline across requests.
 
-- The target item, which pulls a vocabulary entry.
+- The target item, which pairs a vocabulary entry with the attribute passed in the command.
 
 > What fields does each item in a rating request have?
 
