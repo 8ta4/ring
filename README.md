@@ -1,14 +1,14 @@
-# sense
+# shock
 
-## A Sense of Humor
+## Shock Some Sense into It
 
 > What is this tool about?
 
-`sense` rates phrases for double meanings.
+`shock` rates phrases for shock value.
 
 ## Setup
 
-> How do I set up `sense`?
+> How do I set up `shock`?
 
 1. Make sure you're using a Mac with Apple silicon.
 
@@ -24,29 +24,29 @@
 
 1. Run these commands:
    ```bash
-   mkdir -p ~/.config/sense
-   pbpaste > ~/.config/sense/key
-   git clone https://github.com/8ta4/sense
-   cd sense
+   mkdir -p ~/.config/shock
+   pbpaste > ~/.config/shock/key
+   git clone https://github.com/8ta4/shock
+   cd shock
    devenv allow
    devenv shell download
    ```
 
 ## Usage
 
-> How do I run `sense`?
+> How do I run `shock`?
 
 1. Open a terminal.
 
-1. Run the command with your topic.
+1. Run the command with an attribute.
 
    ```bash
-   sense fat
+   sense negative
    ```
 
-Once the API batches finish, `sense` will drop two files into your current directory:
+Once the API batches finish, `shock` will drop two files into your current directory:
 
-- fat.tsv: a file that contains normalized scores
+- negative.tsv: a file that contains normalized scores
 
-- fat.json: a file that contains raw scores
+- negative.json: a file that contains raw scores
 
