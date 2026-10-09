@@ -1,14 +1,14 @@
 # shock
 
-## Shock Some Sense into It
+## One Ring Led to Another
 
 > What is this tool about?
 
-`shock` rates phrases for shock value.
+`ring` rates phrases for attributes.
 
 ## Setup
 
-> How do I set up `shock`?
+> How do I set up `ring`?
 
 1. Make sure you're using a Mac with Apple silicon.
 
@@ -24,27 +24,27 @@
 
 1. Run these commands:
    ```bash
-   mkdir -p ~/.config/shock
-   pbpaste > ~/.config/shock/key
-   git clone https://github.com/8ta4/shock
-   cd shock
+   mkdir -p ~/.config/ring
+   pbpaste > ~/.config/ring/key
+   git clone https://github.com/8ta4/ring
+   cd ring
    devenv allow
    devenv shell download
    ```
 
 ## Usage
 
-> How do I run `shock`?
+> How do I run `ring`?
 
 1. Open a terminal.
 
 1. Run the command with an attribute.
 
    ```bash
-   sense negative
+   ring negative
    ```
 
-Once the API batches finish, `shock` will drop two files into your current directory:
+Once the API batches finish, `ring` will drop two files into your current directory:
 
 - negative.tsv: a file that contains normalized scores
 
