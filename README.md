@@ -41,12 +41,12 @@
 1. Run the command with an attribute.
 
    ```bash
-   ring negative
+   ring derogatory
    ```
 
 Once the API batches finish, `ring` will drop two files into your current directory:
 
-- negative.tsv: a file that contains normalized scores
+- derogatory.tsv: a file that contains normalized scores
 
-- negative.json: a file that contains raw scores
+- derogatory.json: a file that contains raw scores
 
