@@ -1,6 +1,6 @@
 # ring
 
-## One Ring Led to Another
+## Ring to Light
 
 > What is this tool about?
 
