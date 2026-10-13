@@ -1,4 +1,4 @@
-# Changelog for `sense`
+# Changelog for `ring`
 
 All notable changes to this project will be documented in this file.
 
