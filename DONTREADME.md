@@ -120,11 +120,13 @@ Each request in a batch evaluates two items:
 
 > What fields does each item in a rating request have?
 
-Each item has two fields.
+Each item has three fields.
 
 - `phrase`: A word or a multiword term.
 
 - `meaning`: A Wiktionary gloss.
+
+- `attribute`: An attribute to evaluate the phrase and meaning against.
 
 > Does `ring` use JSON in a prompt to format items for evaluation?
 
