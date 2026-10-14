@@ -240,7 +240,7 @@ makeRequestPayload targetTopic targetPhrase targetMeaning =
         .= [ object
                [ "parts"
                    .= [ object
-                          ["text" .= (renderEdn benchmarkTopic benchmarkPhrase benchmarkMeaning <> "\n" <> renderEdn targetTopic targetPhrase targetMeaning)]
+                          ["text" .= (renderEdn benchmarkAttribute benchmarkPhrase benchmarkMeaning <> "\n" <> renderEdn targetTopic targetPhrase targetMeaning)]
                       ]
                ]
            ],
@@ -282,7 +282,7 @@ makeRequestPayload targetTopic targetPhrase targetMeaning =
 -- Haskell's `show` escapes non-ASCII Unicode characters using decimal escape sequences.
 -- `renderJson` uses JSON string escaping.
 renderEdn :: Text -> Text -> Text -> Text
-renderEdn topic phrase meaning = "{:phrase " <> renderJson phrase <> " :meaning " <> renderJson meaning <> " :topic " <> renderJson topic <> "}"
+renderEdn attribute phrase meaning = "{:phrase " <> renderJson phrase <> " :meaning " <> renderJson meaning <> " :attribute " <> renderJson attribute <> "}"
 
 renderJson :: (ToJSON a) => a -> Text
 renderJson = decodeUtf8 <$> encode
@@ -290,8 +290,8 @@ renderJson = decodeUtf8 <$> encode
 benchmarkMeaning :: Text
 benchmarkMeaning = "A dull, unattractive girl or woman."
 
-benchmarkTopic :: Text
-benchmarkTopic = "ugly"
+benchmarkAttribute :: Text
+benchmarkAttribute = "derogatory"
 
 percentageSchema :: Value
 percentageSchema =
@@ -302,7 +302,7 @@ percentageSchema =
     ]
 
 systemPrompt :: Text
-systemPrompt = "Estimate the percentage of Americans 10 years or older who consider each meaning on topic."
+systemPrompt = "Estimate the percentage of Americans 10 years or older who consider each meaning to have the attribute."
 
 batchUrl :: Url 'Https
 batchUrl = baseUrl /: "models" /: model <> ":batchGenerateContent"
