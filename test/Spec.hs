@@ -3,7 +3,7 @@ module Spec where
 import Data.Aeson (Value)
 import Network.HTTP.Req (POST (POST), ReqBodyJson (ReqBodyJson), defaultHttpConfig, jsonResponse, req, responseBody, runReq, (/:))
 import Relude
-import Sense (baseUrl, loadApiKeyHeader, makeRequestPayload, model)
+import Ring (baseUrl, loadApiKeyHeader, makeRequestPayload, model)
 
 main :: IO ()
 main = do

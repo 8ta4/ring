@@ -49,4 +49,3 @@ Once the API batches finish, `ring` will drop two files into your current direct
 - derogatory.tsv: a file that contains normalized scores
 
 - derogatory.json: a file that contains raw scores
-

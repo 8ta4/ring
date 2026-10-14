@@ -36,8 +36,8 @@
   scripts.hello.exec = ''
     echo hello from $GREET
   '';
-  scripts.sense.exec = ''
-    stack run -- sense "$@"
+  scripts.ring.exec = ''
+    stack run -- ring "$@"
   '';
   # ':set -Wprepositive-qualified-module' command works around a ghcid crash related to the `-Wprepositive-qualified-module` warning.
   # The warning can be triggered by GHCi's internal startup process, causing a crash if enabled from the start.
@@ -52,9 +52,9 @@
     -s ':set -Wprepositive-qualified-module' \
     -W
   '';
-  scripts.watch-sense.exec = ''
+  scripts.watch-ring.exec = ''
     ghcid -a \
-    -c 'stack ghci --ghci-options "-ghci-script ghci/sense.ghci" --no-load' \
+    -c 'stack ghci --ghci-options "-ghci-script ghci/ring.ghci" --no-load' \
     --no-height-limit \
     -r \
     -s ":set args fat" \

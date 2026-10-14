@@ -1,4 +1,4 @@
-module Sense where
+module Ring where
 
 import Control.Concurrent (threadDelay)
 import Control.Foldl (mean)
@@ -17,7 +17,6 @@ import Data.List ((!!))
 import Data.Map qualified as Map
 import Data.Map.Lazy (elems, foldMapWithKey, fromListWith, insertWith, lookup, singleton, union)
 import Data.Text (splitOn)
-import Data.Text qualified as Text
 import Network.HTTP.Req (GET (GET), HttpConfig (httpConfigRetryPolicy), JsonResponse, NoReqBody (NoReqBody), Option, POST (POST), Req, ReqBodyFile (ReqBodyFile), ReqBodyJson (ReqBodyJson), Scheme (Https), Url, defaultHttpConfig, header, https, ignoreResponse, jsonResponse, lbsResponse, req, responseBody, responseHeader, responseTimeout, runReq, useHttpsURI, (/:), (=:))
 import Options.Applicative (execParser, helper, strArgument)
 import Options.Applicative.Builder (info)
@@ -119,26 +118,7 @@ main = do
               _ -> pure ()
           selectMeanings phrase senses = fromMaybe [] $ do
             meaningScores <- Map.lookup phrase meanScores
-            let hasKnownIdiom = any (\sense -> isKnown meaningScores sense && isIdiomatic sense) senses
-            pure
-              $ (phrase,)
-              <$> ( ( if hasKnownIdiom && not (any isLiteral senses)
-                        then (syntheticLiteral :)
-                        else id
-                    )
-                      $ mapMaybe extractMeaning
-                      $ filter
-                        ( \sense ->
-                            isKnown meaningScores sense
-                              && ( Map.size (Map.filter isKnown' meaningScores)
-                                     > 1
-                                     || isIdiomatic sense
-                                 )
-                              || hasKnownIdiom
-                              && isLiteral sense
-                        )
-                      $ senses
-                  )
+            pure $ (phrase,) <$> (mapMaybe extractMeaning $ filter (isKnown meaningScores) senses)
           ensureDownloaded = unless rawExists $ do
             batchId <- readFileBS batchIdPath
             maybeResponsesFile <- poll $ req GET (baseUrl /: "batches" /: decodeUtf8 batchId) NoReqBody jsonResponse apiKeyHeader
@@ -160,7 +140,7 @@ main = do
               Just (rawScores :: RawScores) -> do
                 let meanBenchmarkScore = Foldl.fold mean $ elems rawScores >>= ((fst <$>) <$> elems)
                 writeFileLBS normalizedPath
-                  $ encodeWith tsvOptions [("phrase" :: Text, "meaning" :: Text, "connection" :: Text)]
+                  $ encodeWith tsvOptions [("phrase" :: Text, "meaning" :: Text, "attribute" :: Text)]
                   <> ( encodeWith tsvOptions
                          $ join
                          $ sortOn phraseOrder
@@ -198,10 +178,10 @@ tsvOptions =
     { encDelimiter = fromIntegral (ord '\t')
     }
 
-phraseOrder :: [(a, b, Double)] -> (Down Double, Down Double, a)
+phraseOrder :: [(a, b, Double)] -> (Down Double, a)
 phraseOrder rows =
   let highestScore = (Unsafe.head $ rows) ^. _3
-   in (Down (highestScore - (Unsafe.last $ rows) ^. _3), Down highestScore, (Unsafe.head $ rows) ^. _1)
+   in (Down highestScore, (Unsafe.head $ rows) ^. _1)
 
 meaningOrder :: (b, a) -> (Down a, b)
 meaningOrder (meaning, score) = (Down score, meaning)
@@ -230,7 +210,7 @@ benchmarkPhrase = "dog"
 loadApiKeyHeader :: IO (Option 'Https)
 loadApiKeyHeader = do
   home <- getHomeDirectory
-  apiKey <- readFileBS $ home </> ".config/sense/key"
+  apiKey <- readFileBS $ home </> ".config/ring/key"
   pure $ header "x-goog-api-key" apiKey
 
 makeRequestPayload :: Text -> Text -> Text -> Value
@@ -240,7 +220,7 @@ makeRequestPayload targetTopic targetPhrase targetMeaning =
         .= [ object
                [ "parts"
                    .= [ object
-                          ["text" .= (renderEdn benchmarkTopic benchmarkPhrase benchmarkMeaning <> "\n" <> renderEdn targetTopic targetPhrase targetMeaning)]
+                          ["text" .= (renderEdn benchmarkAttribute benchmarkPhrase benchmarkMeaning <> "\n" <> renderEdn targetTopic targetPhrase targetMeaning)]
                       ]
                ]
            ],
@@ -282,7 +262,7 @@ makeRequestPayload targetTopic targetPhrase targetMeaning =
 -- Haskell's `show` escapes non-ASCII Unicode characters using decimal escape sequences.
 -- `renderJson` uses JSON string escaping.
 renderEdn :: Text -> Text -> Text -> Text
-renderEdn topic phrase meaning = "{:phrase " <> renderJson phrase <> " :meaning " <> renderJson meaning <> " :topic " <> renderJson topic <> "}"
+renderEdn attribute phrase meaning = "{:phrase " <> renderJson phrase <> " :meaning " <> renderJson meaning <> " :attribute " <> renderJson attribute <> "}"
 
 renderJson :: (ToJSON a) => a -> Text
 renderJson = decodeUtf8 <$> encode
@@ -290,8 +270,8 @@ renderJson = decodeUtf8 <$> encode
 benchmarkMeaning :: Text
 benchmarkMeaning = "A dull, unattractive girl or woman."
 
-benchmarkTopic :: Text
-benchmarkTopic = "ugly"
+benchmarkAttribute :: Text
+benchmarkAttribute = "derogatory"
 
 percentageSchema :: Value
 percentageSchema =
@@ -302,7 +282,7 @@ percentageSchema =
     ]
 
 systemPrompt :: Text
-systemPrompt = "Estimate the percentage of Americans 10 years or older who consider each meaning on topic."
+systemPrompt = "Estimate the percentage of Americans 10 years or older who consider each meaning to have the attribute."
 
 batchUrl :: Url 'Https
 batchUrl = baseUrl /: "models" /: model <> ":batchGenerateContent"
@@ -346,20 +326,6 @@ isKnown scores sense = fromMaybe False $ do
 
 isKnown' :: Double -> Bool
 isKnown' = (>= 50)
-
-isIdiomatic :: Value -> Bool
-isIdiomatic sense = elem "idiomatic" $ sense ^.. key "tags" . values . _String
-
-isLiteral :: Value -> Bool
-isLiteral sense = fromMaybe False $ do
-  meaning <- extractMeaning sense
-  pure $ Text.isPrefixOf literalPrefix meaning
-
-syntheticLiteral :: Text
-syntheticLiteral = literalPrefix <> "."
-
-literalPrefix :: Text
-literalPrefix = "Used other than figuratively or idiomatically"
 
 extractMeaning :: Value -> Maybe Text
 extractMeaning sense = sense ^? key "glosses" . _Array . _last . _String
