@@ -140,7 +140,7 @@ main = do
               Just (rawScores :: RawScores) -> do
                 let meanBenchmarkScore = Foldl.fold mean $ elems rawScores >>= ((fst <$>) <$> elems)
                 writeFileLBS normalizedPath
-                  $ encodeWith tsvOptions [("phrase" :: Text, "meaning" :: Text, "connection" :: Text)]
+                  $ encodeWith tsvOptions [("phrase" :: Text, "meaning" :: Text, "attribute" :: Text)]
                   <> ( encodeWith tsvOptions
                          $ join
                          $ sortOn phraseOrder
