@@ -1,4 +1,4 @@
-module Sense where
+module Ring where
 
 import Control.Concurrent (threadDelay)
 import Control.Foldl (mean)
