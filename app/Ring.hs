@@ -119,26 +119,7 @@ main = do
               _ -> pure ()
           selectMeanings phrase senses = fromMaybe [] $ do
             meaningScores <- Map.lookup phrase meanScores
-            let hasKnownIdiom = any (\sense -> isKnown meaningScores sense && isIdiomatic sense) senses
-            pure
-              $ (phrase,)
-              <$> ( ( if hasKnownIdiom && not (any isLiteral senses)
-                        then (syntheticLiteral :)
-                        else id
-                    )
-                      $ mapMaybe extractMeaning
-                      $ filter
-                        ( \sense ->
-                            isKnown meaningScores sense
-                              && ( Map.size (Map.filter isKnown' meaningScores)
-                                     > 1
-                                     || isIdiomatic sense
-                                 )
-                              || hasKnownIdiom
-                              && isLiteral sense
-                        )
-                      $ senses
-                  )
+            pure $ (phrase,) <$> (mapMaybe extractMeaning $ filter (isKnown meaningScores) senses)
           ensureDownloaded = unless rawExists $ do
             batchId <- readFileBS batchIdPath
             maybeResponsesFile <- poll $ req GET (baseUrl /: "batches" /: decodeUtf8 batchId) NoReqBody jsonResponse apiKeyHeader
@@ -346,20 +327,6 @@ isKnown scores sense = fromMaybe False $ do
 
 isKnown' :: Double -> Bool
 isKnown' = (>= 50)
-
-isIdiomatic :: Value -> Bool
-isIdiomatic sense = elem "idiomatic" $ sense ^.. key "tags" . values . _String
-
-isLiteral :: Value -> Bool
-isLiteral sense = fromMaybe False $ do
-  meaning <- extractMeaning sense
-  pure $ Text.isPrefixOf literalPrefix meaning
-
-syntheticLiteral :: Text
-syntheticLiteral = literalPrefix <> "."
-
-literalPrefix :: Text
-literalPrefix = "Used other than figuratively or idiomatically"
 
 extractMeaning :: Value -> Maybe Text
 extractMeaning sense = sense ^? key "glosses" . _Array . _last . _String
