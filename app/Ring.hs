@@ -17,7 +17,6 @@ import Data.List ((!!))
 import Data.Map qualified as Map
 import Data.Map.Lazy (elems, foldMapWithKey, fromListWith, insertWith, lookup, singleton, union)
 import Data.Text (splitOn)
-import Data.Text qualified as Text
 import Network.HTTP.Req (GET (GET), HttpConfig (httpConfigRetryPolicy), JsonResponse, NoReqBody (NoReqBody), Option, POST (POST), Req, ReqBodyFile (ReqBodyFile), ReqBodyJson (ReqBodyJson), Scheme (Https), Url, defaultHttpConfig, header, https, ignoreResponse, jsonResponse, lbsResponse, req, responseBody, responseHeader, responseTimeout, runReq, useHttpsURI, (/:), (=:))
 import Options.Applicative (execParser, helper, strArgument)
 import Options.Applicative.Builder (info)
@@ -179,10 +178,10 @@ tsvOptions =
     { encDelimiter = fromIntegral (ord '\t')
     }
 
-phraseOrder :: [(a, b, Double)] -> (Down Double, Down Double, a)
+phraseOrder :: [(a, b, Double)] -> (Down Double, a)
 phraseOrder rows =
   let highestScore = (Unsafe.head $ rows) ^. _3
-   in (Down (highestScore - (Unsafe.last $ rows) ^. _3), Down highestScore, (Unsafe.head $ rows) ^. _1)
+   in (Down highestScore, (Unsafe.head $ rows) ^. _1)
 
 meaningOrder :: (b, a) -> (Down a, b)
 meaningOrder (meaning, score) = (Down score, meaning)
