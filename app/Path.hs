@@ -7,7 +7,7 @@ import System.FilePath ((</>))
 getStatePath :: IO FilePath
 getStatePath = do
   home <- getHomeDirectory
-  pure $ home </> ".local/state/sense"
+  pure $ home </> ".local/state/ring"
 
 meanFilename :: Text
 meanFilename = "mean.json"

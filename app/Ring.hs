@@ -230,7 +230,7 @@ benchmarkPhrase = "dog"
 loadApiKeyHeader :: IO (Option 'Https)
 loadApiKeyHeader = do
   home <- getHomeDirectory
-  apiKey <- readFileBS $ home </> ".config/sense/key"
+  apiKey <- readFileBS $ home </> ".config/ring/key"
   pure $ header "x-goog-api-key" apiKey
 
 makeRequestPayload :: Text -> Text -> Text -> Value
